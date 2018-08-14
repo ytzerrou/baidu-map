@@ -7,21 +7,69 @@
     <title>Document</title>
     <style type="text/css">
         body,html,#container{
-            width: 100%;
-            height: 100%;
-            margin: 0px
+            width: 600px;
+            height: 600px;
+            /* width: 100%;
+            height: 100%; */
+            margin: 20px;
         }
     </style>
     
 </head>
 <body>
     <div id="container" tabindex="0"></div>
-    <script type="text/javascript" src="https://webapi.amap.com/maps?v=1.4.4&key=3320d9b941fd7c34bb95168824059803"></script>
+    <script type="text/javascript" src="https://webapi.amap.com/maps?v=1.4.4&key=3320d9b941fd7c34bb95168824059803&plugin=AMap.ToolBar,AMap.Driving,AMap.Scale,AMap.OverView,AMap.Weather"></script>
     <script type="text/javascript">
         var map = new AMap.Map('container', {
            center:[117.000923,36.675807],
-           zoom:11
+           zoom:14,
+           icon: true,
+           resizeEnable: true
         });
+        var marker = new AMap.Marker({draggable: true});
+        marker.setMap(map);
+
+        AMap.plugin(['AMap.ToolBar','AMap.Driving'],function(){ // 异步同时加载多个插件
+            var toolbar = new AMap.ToolBar();
+            map.addControl(toolbar);
+
+            var driving = new AMap.Driving();//驾车路线规划
+            driving.search('大明湖公园')
+
+            var scale = new AMap.Scale();
+            map.addControl(scale);
+
+            var overview = new AMap.OverView();
+            map.addControl(overview);
+
+            var weather = new AMap.Weather();
+            map.addControl(weather);
+        })
+
+        // var toolbar = new AMap.ToolBar();
+        // map.plugin(toolbar);
+
+        // var scale = new AMap.scale();
+        // map.plugin(scale);
+
+        map.on('click',function(e) {
+            console.log(e);
+            map.setCenter([e.lnglat.getLng(), e.lnglat.getLat()]);//设置视图中心
+            AMap.service("AMap.Geocoder", function () {
+                window.geo = new AMap.Geocoder();
+                window.geo.getAddress([e.lnglat.getLng(), e.lnglat.getLat()], function (status, result) {
+                    if (status === 'complete' && result.info === 'OK') {
+                        var address = result.regeocode.formattedAddress; //返回地址描述
+                        marker.setPosition([e.lnglat.getLng(), e.lnglat.getLat()]);//设置标注
+                        marker.setTitle(address);//设置标注提示
+                    }
+                })
+            });
+        });
+        
+        
+
+        
     </script>
 </body>
 </html>
