@@ -29,8 +29,42 @@
         var marker = new AMap.Marker({draggable: true});
         marker.setMap(map);
 
-        AMap.plugin(['AMap.ToolBar','AMap.Driving'],function(){ // 异步同时加载多个插件
-            var toolbar = new AMap.ToolBar();
+        var circle = new AMap.Circle({  // 圆形编辑器的样式
+            map: map,
+            center:new AMap.LngLat("117.000923","36.675807"),  
+            radius:1000,  
+            strokeColor: "#F33",  
+            strokeOpacity: 1,  
+            strokeWeight: 3,  
+            fillColor: "ee2200",  
+            fillOpacity: 0.35 
+        });
+
+        var arr = new Array();  // 经纬度坐标数组
+        arr.push(new AMap.LngLat("116.403322","39.920255")); 
+        arr.push(new AMap.LngLat("116.410703","39.897555")); 
+        arr.push(new AMap.LngLat("116.402292","39.892353")); 
+        arr.push(new AMap.LngLat("116.389846","39.891365")); 
+
+        var polygon=new AMap.Polygon({
+                path:arr,    //设置多边形轮廓的节点数组
+                strokeColor:"#0000ff", 
+                strokeOpacity:0.2, 
+                strokeWeight:3, 
+                fillColor: "#f5deb3",
+                fillOpacity: 0.35 
+            }); 
+            //地图上添加多边形
+            // map.addOverlays(polygon);
+        
+
+        AMap.plugin(['AMap.ToolBar','AMap.Driving','AMap.CircleEditor','AMap.Polygon','AMap.MouseTool'],function(){ // 异步同时加载多个插件
+            var toolbar = new AMap.ToolBar({
+                visible: true, // 初始化显示
+            });
+            // toolbar.show();
+            // toolbar.hideRuler();
+            // toolbar.showDirection();
             map.addControl(toolbar);
 
             var driving = new AMap.Driving();//驾车路线规划
@@ -44,6 +78,17 @@
 
             var weather = new AMap.Weather();
             map.addControl(weather);
+
+            circleEditor = new AMap.CircleEditor(map,circle);   //创建圆形编辑器对象
+            circleEditor.open();   //打开圆形编辑器
+
+            mousetool = new AMap.MouseTool(map);
+            // mousetool.marker();  //使用鼠标工具，在地图上画标记点
+            mousetool.measureArea(); //使用鼠标工具，在地图上画面积(最后终点双击)
+            // mousetool.circle();   // 鼠标画圆形
+            mousetool.rectangle();  // 鼠标画矩形
+            // mousetool.close(true);  // 关闭鼠标工具
+
         })
 
         // var toolbar = new AMap.ToolBar();
